@@ -1,0 +1,41 @@
+version: '3.7'
+
+services: 
+  app:
+    build: 
+      context: .
+    image: django-helloapp
+    container_name: django-app
+    volumes: 
+      - static_data:/vol/web
+    environment: 
+      - SECRET_KEY=mysecret1234567890
+      - ALLOWED_HOSTS=127.0.0.1,localhost
+    networks: 
+      - django-backend
+
+  proxy:
+    build: 
+      context: ./nginx
+    image: django-proxy
+    container_name: django-proxy
+    volumes: 
+      - static_data:/vol/static
+    ports: 
+      - "9000:9000"
+    networks: 
+      - django-frontend
+      - django-backend
+    depends_on:  
+      - app
+
+volumes: 
+  static_data:
+
+networks: 
+  django-frontend:
+    driver: bridge
+    name: django-frontend
+  django-backend:
+    driver: bridge
+    name: django-backend
